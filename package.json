@@ -2,9 +2,10 @@
   "name": "tiny-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "express_server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "node express_server.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
   },
   "homepage": "https://github.com/afairlie/tiny-app#readme",
   "dependencies": {
+    "ejs": "^3.0.2",
     "express": "^4.17.1"
   }
 }
