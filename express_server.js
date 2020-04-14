@@ -31,8 +31,8 @@ server.get("/urls/new", (req, res) => {
 server.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
-  // next: redirect to /urls/:shortURL
-  res.send(`${shortURL} = ${req.body.longURL}`);
+  let templateVars = {shortURL: shortURL, longURL: req.body.longURL}
+  res.render('urls_show', templateVars);
 });
 
 server.get('/urls/:shortURL', (req, res) => {
