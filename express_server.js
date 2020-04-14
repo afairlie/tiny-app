@@ -31,14 +31,19 @@ server.get("/urls/new", (req, res) => {
 server.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
-  let templateVars = {shortURL: shortURL, longURL: req.body.longURL}
-  res.render('urls_show', templateVars);
+
+  res.redirect(`urls/${shortURL}`);
 });
 
 server.get('/urls/:shortURL', (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
 
   res.render('urls_show', templateVars);
+});
+
+server.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 server.listen(PORT, () => {
