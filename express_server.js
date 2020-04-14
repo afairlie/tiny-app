@@ -16,7 +16,7 @@ const urlDatabase = {
 };
 
 server.get('/', (req, res) => {
-  res.send('Hello!');
+  res.redirect('/urls');
 });
 
 server.get('/urls', (req, res) => {
@@ -41,10 +41,16 @@ server.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-server.get("/u/:shortURL", (req, res) => {
+server.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
+server.post('/urls/:shortURL/delete', (req, res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect('/urls');
+})
 
 server.listen(PORT, () => {
   console.log(`Example server listening on port ${PORT}!`);
