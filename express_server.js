@@ -4,8 +4,11 @@ const server = express();
 const PORT = 8080; // default port 8080
 
 server.set('view engine', 'ejs');
-
 server.use(bodyParser.urlencoded({extended: true}));
+
+function generateRandomString() {
+return Math.random().toString(36).substring(2, 8);
+}
 
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
@@ -26,8 +29,10 @@ server.get("/urls/new", (req, res) => {
 });
 
 server.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  // next: redirect to /urls/:shortURL
+  res.send(`${shortURL} = ${req.body.longURL}`);
 });
 
 server.get('/urls/:shortURL', (req, res) => {
