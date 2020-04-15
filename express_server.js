@@ -53,7 +53,11 @@ server.post('/logout', (req, res) => {
 })
 
 server.get('/register', (req, res) => {
-  res.render('register');
+  const { user_id } = req.cookies;
+  const user = users[user_id];
+  let templateVars = { user };
+
+  res.render('register', templateVars);
 })
 
 
