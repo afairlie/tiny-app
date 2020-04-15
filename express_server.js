@@ -27,9 +27,13 @@ server.get('/', (req, res) => {
 
 server.post('/login', (req, res) => {
   const username = req.body.username;
-  console.log(username);
-  // username = val in header form
   res.cookie('username', username);
+  res.redirect('/urls');
+})
+
+server.post('/logout', (req, res) => {
+  // post to logout
+  res.clearCookie('username');
   res.redirect('/urls');
 })
 
@@ -39,7 +43,8 @@ server.get('/urls', (req, res) => {
 });
 
 server.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["username"]};
+  res.render("urls_new", templateVars);
 });
 
 server.post("/urls", (req, res) => {
