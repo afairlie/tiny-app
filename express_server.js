@@ -1,25 +1,38 @@
-// PACKAGES ETC.
+// SERVER
 const express = require('express');
-const morgan = require('morgan')
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const server = express();
 const PORT = 8080; // default port 8080
 
-const urlDatabase = require('./urlDatabase');
-const users = require('./users');
-const uRedirect = require("./routes/uRedirect");
+// MODULES & MIDDLEWARE
+const morgan = require('morgan')
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 server.set('view engine', 'ejs');
 server.use(bodyParser.urlencoded({extended: true}));
 server.use(cookieParser());
 server.use(morgan('tiny'));
 
+// LOCAL MODULES
+const urlDatabase = require('./data/urlDatabase');
+const users = require('./data/users');
+const uRedirect = require("./routes/uRedirect");
+
+// ROUTING MODULES
 server.use('/u', uRedirect);
 
 // HELPER FUNCTIONS
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
+}
+
+const findEmail = (email) => {
+  for (let user in users) {
+    if (email === users[user].email){
+      return email;
+    }
+  }
+  return undefined;
 }
 
 // ROUTING
@@ -34,7 +47,6 @@ server.post('/login', (req, res) => {
 })
 
 server.post('/logout', (req, res) => {
-  // post to logout
   res.clearCookie('user_id');
   res.redirect('/urls');
 })
@@ -51,10 +63,20 @@ server.get('/register', (req, res) => {
 server.post('/register', (req, res) => {
   const id = generateRandomString();
   const {email, password} = req.body;
-  users[id] = {id, email, password};
+  const emailExists = findEmail(email);
 
-  res.cookie('user_id', id);
-  res.redirect('/urls');
+  if (!email || !password) {
+    res.redirect(401, '/register');
+  } else if (emailExists) {
+    console.log(email);
+    res.redirect(401, '/register');
+  } else {
+    users[id] = {id, email, password};
+
+    res.cookie('user_id', id);
+    res.redirect('/urls');
+  }
+  console.log(users);
 })
 
 server.get('/urls', (req, res) => {
