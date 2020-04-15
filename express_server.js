@@ -1,5 +1,6 @@
 // PACKAGES ETC.
 const express = require('express');
+const morgan = require('morgan')
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const server = express();
@@ -8,6 +9,7 @@ const PORT = 8080; // default port 8080
 server.set('view engine', 'ejs');
 server.use(bodyParser.urlencoded({extended: true}));
 server.use(cookieParser());
+server.use(morgan('tiny'));
 
 // HELPER FUNCTIONS
 function generateRandomString() {
@@ -37,6 +39,11 @@ server.post('/logout', (req, res) => {
   res.redirect('/urls');
 })
 
+server.get('/register', (req, res) => {
+  let templateVars = { username: req.cookies["username"]};
+  res.render('register', templateVars);
+})
+
 server.get('/urls', (req, res) => {
   let templateVars = {urls: urlDatabase, username: req.cookies["username"]};
   res.render('urls_index', templateVars);
@@ -64,7 +71,7 @@ server.post('/urls/:shortURL', (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = req.body.longURL
   urlDatabase[shortURL] = longURL;
-  res.redirect('/urls/')
+  res.redirect('/urls')
 })
 
 server.get('/u/:shortURL', (req, res) => {
