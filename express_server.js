@@ -7,6 +7,7 @@ const server = express();
 const PORT = 8080; // default port 8080
 
 const urlDatabase = require('./urlDatabase');
+const users = require('./users');
 const uRedirect = require("./routes/uRedirect");
 
 server.set('view engine', 'ejs');
@@ -19,21 +20,6 @@ server.use('/u', uRedirect);
 // HELPER FUNCTIONS
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
-}
-
-// DB
-
-const users = {
-  'na0weg': {
-    id: 'na0weg', 
-    email: 'stevethecat@gmail.com', 
-    password: 'booboo'
-  },
-  'zby6d7': {
-    id: 'zby6d7', 
-    email: 'vassart.max@gmail.com', 
-    password: 'livefreeordie'
-  }
 }
 
 // ROUTING
