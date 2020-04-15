@@ -6,10 +6,15 @@ const cookieParser = require('cookie-parser');
 const server = express();
 const PORT = 8080; // default port 8080
 
+const urlDatabase = require('./urlDatabase');
+const uRedirect = require("./routes/uRedirect");
+
 server.set('view engine', 'ejs');
 server.use(bodyParser.urlencoded({extended: true}));
 server.use(cookieParser());
 server.use(morgan('tiny'));
+
+server.use('/u', uRedirect);
 
 // HELPER FUNCTIONS
 const generateRandomString = () => {
@@ -17,10 +22,6 @@ const generateRandomString = () => {
 }
 
 // DB
-const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
-};
 
 const users = {
   'na0weg': {
@@ -112,12 +113,6 @@ server.post('/urls/:shortURL', (req, res) => {
 
   res.redirect('/urls')
 })
-
-server.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-
-  res.redirect(longURL);
-});
 
 server.post('/urls/:shortURL/delete', (req, res) => {
   const { shortURL } = req.params;
