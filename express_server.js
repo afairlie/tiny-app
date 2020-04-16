@@ -28,10 +28,10 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 }
 
-const findEmail = (email) => {
+const checkIDBy = (key, property) => {
   for (let user in users) {
-    if (email === users[user].email){
-      return email;
+    if (users[user][key] === property) {
+      return users[user].id;
     }
   }
   return undefined;
@@ -42,10 +42,26 @@ server.get('/', (req, res) => {
   res.redirect('/urls');
 });
 
+server.get('/login', (req, res) => {
+  const { user_id } = req.cookies;
+  const user = users[user_id];
+  let templateVars = { user };
+
+  res.render('login', templateVars);
+})
+
 server.post('/login', (req, res) => {
-  const {username} = req.body;
-  res.cookie('username', username);
-  res.redirect('/urls');
+  // UPDATE THIS FOR NEW LOGIN FLOW
+  const {email, password} = req.body;
+  const id = checkIDBy('email', email);
+  const confirmPassword = checkIDBy('password', password);
+
+  if (id && confirmPassword) {
+    res.cookie('user_id', id);
+    res.redirect('/urls');
+  } else {
+    res.redirect(403, '/login');
+  }
 })
 
 server.post('/logout', (req, res) => {
@@ -65,7 +81,7 @@ server.get('/register', (req, res) => {
 server.post('/register', (req, res) => {
   const id = generateRandomString();
   const {email, password} = req.body;
-  const emailExists = findEmail(email);
+  const emailExists = checkIDBy('email', email);
 
   if (!email || !password) {
     res.redirect(401, '/register');
