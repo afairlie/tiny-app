@@ -13,16 +13,27 @@ const generateRandomString = () => {
 // ROUTING
 router.get('/', (req, res) => {
   const { user_id } = req.cookies;
-  const urls = urlDatabase;
   const user = users[user_id];
+  // FIX: urls passed to urls_index template
+  const urls = urlDatabase;
 
   let templateVars = { urls, user };
 
   res.render('urls_index', templateVars);
 });
 
+router.post("/", (req, res) => {
+  const shortURL = generateRandomString();
+  const { longURL } = req.body;
+  const { user_id } = req.cookies;
+  urlDatabase[shortURL] = { longURL, user_id }
+
+  res.redirect(`urls/${shortURL}`);
+});
+
 router.get("/new", (req, res) => {
   const { user_id } = req.cookies;
+
   if (user_id) {
     const user = users[user_id];
     let templateVars = { user };
@@ -33,27 +44,27 @@ router.get("/new", (req, res) => {
   }
 });
 
-router.post("/", (req, res) => {
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-
-  res.redirect(`urls/${shortURL}`);
-});
-
 router.get('/:shortURL', (req, res) => {
   const { user_id } = req.cookies;
+
+  if (user_id) {
   const user = users[user_id];
   const { shortURL } = req.params;
-  const longURL = urlDatabase[shortURL];
+  const { longURL } = urlDatabase[shortURL];
+  
   let templateVars = { user, shortURL, longURL};
 
   res.render('urls_show', templateVars);
+  } else {
+    res.redirect(403, '/login');
+  }
 });
 
 router.post('/:shortURL', (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = req.body.longURL
-  urlDatabase[shortURL] = longURL;
+  const { user_id } = req.cookies;
+  let { shortURL } = req.params;
+  let { longURL } = req.body;
+  urlDatabase[shortURL] = { longURL, user_id };
 
   res.redirect('/urls');
 })

@@ -14,7 +14,6 @@ server.use(cookieParser());
 server.use(morgan('tiny'));
 
 // LOCAL MODULES
-const urlDatabase = require('./data/urlDatabase');
 const users = require('./data/users');
 const uRedirect = require('./routes/uRedirect');
 const urlsRouter = require('./routes/urls');
