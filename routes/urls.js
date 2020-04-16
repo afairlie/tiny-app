@@ -24,7 +24,6 @@ const fetchURLSByUser = (signedInUser) => {
       userURLsObj[shortURL] = urlDatabase[shortURL];
     }
   }
-  console.log(userURLsObj);
   return userURLsObj;
 }
 
@@ -39,7 +38,7 @@ router.get('/', (req, res) => {
   
     res.render('urls_index', templateVars);
   } else {
-    res.redirect(400, '/login');
+    res.redirect('../');
   }
 });
 
@@ -52,7 +51,7 @@ router.get("/new", (req, res) => {
   
     res.render("urls_new", templateVars);
   } else {
-    res.redirect(403, '/login');
+    res.redirect('../');
   }
 });
 

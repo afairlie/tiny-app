@@ -27,6 +27,11 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 }
 
+const fetchUserByCookie = (req) => {
+  const { user_id } = req.cookies;
+  return userObj = users[user_id];
+}
+
 const retrieveIDBy = (key, property) => {
   for (let user in users) {
     if (users[user][key] === property) {
@@ -36,15 +41,12 @@ const retrieveIDBy = (key, property) => {
   return undefined;
 }
 
-const fetchUserByCookie = (req) => {
-  const { user_id } = req.cookies;
-  return userObj = users[user_id];
-}
-
 // ROUTING
 server.get('/', (req, res) => {
-  // TEMP: redirect to login - no access to /urls without login.
-  res.redirect('/login');
+  const user = fetchUserByCookie(req);
+  const templateVars = { user };
+
+  res.render('landing', templateVars);
 });
 
 server.get('/login', (req, res) => {
@@ -73,8 +75,7 @@ server.post('/logout', (req, res) => {
 })
 
 server.get('/register', (req, res) => {
-  const { user_id } = req.cookies;
-  const user = users[user_id];
+  const user = fetchUserByCookie(req);
   let templateVars = { user };
 
   res.render('register', templateVars);
