@@ -6,12 +6,12 @@ const urlDatabase = require('../data/urlDatabase');
 const users = require('../data/users');
 
 // HELPER FUNCTIONS
-const generateRandomString = () => {
+const generateShortURL = () => {
   return Math.random().toString(36).substring(2, 8);
 }
 
 const fetchUserByCookie = (req) => {
-  const { user_id } = req.cookies;
+  const { user_id } = req.session;
   return userObj = users[user_id];
 }
 
@@ -28,6 +28,7 @@ const fetchURLSByUser = (signedInUser) => {
 }
 
 // ROUTING
+
 // PERMISSION RESTRICTED: view url index - my URLs
 router.get('/', (req, res) => {
   const user = fetchUserByCookie(req);
@@ -42,7 +43,7 @@ router.get('/', (req, res) => {
   }
 });
 
-// create new URL
+// (RESTRICTED to users): create new URL
 router.get("/new", (req, res) => {
   const user = fetchUserByCookie(req);
 
@@ -57,10 +58,10 @@ router.get("/new", (req, res) => {
 
 // post new URL
 router.post("/", (req, res) => {
-  const shortURL = generateRandomString();
   const { longURL } = req.body;
-  const { user_id } = req.cookies;
-  // UPDATE FLOW
+  const { user_id } = req.session;
+
+  const shortURL = generateShortURL();
   urlDatabase[shortURL] = { longURL, user_id }
 
   res.redirect(`urls/${shortURL}`);
