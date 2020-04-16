@@ -28,7 +28,7 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 }
 
-const checkIDBy = (key, property) => {
+const retrieveIDBy = (key, property) => {
   for (let user in users) {
     if (users[user][key] === property) {
       return users[user].id;
@@ -51,10 +51,9 @@ server.get('/login', (req, res) => {
 })
 
 server.post('/login', (req, res) => {
-  // UPDATE THIS FOR NEW LOGIN FLOW
   const {email, password} = req.body;
-  const id = checkIDBy('email', email);
-  const confirmPassword = checkIDBy('password', password);
+  const id = retrieveIDBy('email', email);
+  const confirmPassword = retrieveIDBy('password', password);
 
   if (id && confirmPassword) {
     res.cookie('user_id', id);
@@ -81,7 +80,7 @@ server.get('/register', (req, res) => {
 server.post('/register', (req, res) => {
   const id = generateRandomString();
   const {email, password} = req.body;
-  const emailExists = checkIDBy('email', email);
+  const emailExists = retrieveIDBy('email', email);
 
   if (!email || !password) {
     res.redirect(401, '/register');
