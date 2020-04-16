@@ -23,10 +23,14 @@ router.get('/', (req, res) => {
 
 router.get("/new", (req, res) => {
   const { user_id } = req.cookies;
-  const user = users[user_id];
-  let templateVars = { user };
-
-  res.render("urls_new", templateVars);
+  if (user_id) {
+    const user = users[user_id];
+    let templateVars = { user };
+  
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect(403, '/login');
+  }
 });
 
 router.post("/", (req, res) => {
