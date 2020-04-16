@@ -54,7 +54,7 @@ server.post('/login', (req, res) => {
   const id = retrieveIDBy('email', email);
   const confirmPassword = retrieveIDBy('password', password);
 
-  if (id && confirmPassword) {
+  if (id && confirmPassword && id === confirmPassword) {
     res.cookie('user_id', id);
     res.redirect('/urls');
   } else {
