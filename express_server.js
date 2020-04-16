@@ -85,14 +85,16 @@ server.get('/login', (req, res) => {
 
 server.post('/login', (req, res) => {
   const {email, password} = req.body;
-  // REFACTOR: convoluted.
   const id = retrieveIDBy('email', email);
-  const hashedPassword = users[id].password;
-  ;
 
-  if (id && bcrypt.compareSync(password, hashedPassword)) {
-    res.cookie('user_id', id);
-    res.redirect('/urls');
+  if (id) {
+    const hashedPassword = users[id].password;
+    if (bcrypt.compareSync(password, hashedPassword)) {
+      res.cookie('user_id', id);
+      res.redirect('/urls');
+    } else {
+      res.redirect(403, '/login');
+    }
   } else {
     res.redirect(403, '/login');
   }
