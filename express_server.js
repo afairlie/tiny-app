@@ -16,10 +16,12 @@ server.use(morgan('tiny'));
 // LOCAL MODULES
 const urlDatabase = require('./data/urlDatabase');
 const users = require('./data/users');
-const uRedirect = require("./routes/uRedirect");
+const uRedirect = require('./routes/uRedirect');
+const urlsRouter = require('./routes/urls');
 
 // ROUTING MODULES
 server.use('/u', uRedirect);
+server.use('/urls', urlsRouter);
 
 // HELPER FUNCTIONS
 const generateRandomString = () => {
@@ -77,56 +79,6 @@ server.post('/register', (req, res) => {
     res.redirect('/urls');
   }
   console.log(users);
-})
-
-server.get('/urls', (req, res) => {
-  const { user_id } = req.cookies;
-  const urls = urlDatabase;
-  const user = users[user_id];
-
-  let templateVars = { urls, user };
-
-  res.render('urls_index', templateVars);
-});
-
-server.get("/urls/new", (req, res) => {
-  const { user_id } = req.cookies;
-  const user = users[user_id];
-  let templateVars = { user };
-
-  res.render("urls_new", templateVars);
-});
-
-server.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-
-  res.redirect(`urls/${shortURL}`);
-});
-
-server.get('/urls/:shortURL', (req, res) => {
-  const { user_id } = req.cookies;
-  const user = users[user_id];
-  const { shortURL } = req.params;
-  const { longURL } = urlDatabase[shortURL];
-  let templateVars = { user, shortURL, longURL};
-
-  res.render('urls_show', templateVars);
-});
-
-server.post('/urls/:shortURL', (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = req.body.longURL
-  urlDatabase[shortURL] = longURL;
-
-  res.redirect('/urls')
-})
-
-server.post('/urls/:shortURL/delete', (req, res) => {
-  const { shortURL } = req.params;
-  delete urlDatabase[shortURL];
-
-  res.redirect('/urls');
 })
 
 server.listen(PORT, () => {
