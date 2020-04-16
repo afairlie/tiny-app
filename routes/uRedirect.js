@@ -3,7 +3,8 @@ const router = express.Router();
 const urlDatabase = require('../data/urlDatabase');
 
 router.get('/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const { shortURL } = req.params;
+  const { longURL } = urlDatabase[shortURL];
 
   res.redirect(longURL);
 });
