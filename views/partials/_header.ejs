@@ -17,7 +17,7 @@
           <button class='btn btn-outline-light btn-sm ml-2' formmethod='GET' formaction='/login' type='submit'>login</button>
         </form>
       <% } else { %>
-        <% console.log(user) %>
+        <!-- <% console.log(user) %> -->
         <form class='navbar'>
           <div class='control mr-sm-2'>logged in as: <%= user.email %></div>
           <button class='btn btn-outline-dark btn-sm ml-2' formmethod='POST' formaction='/logout' type='submit'>logout</button>

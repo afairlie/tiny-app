@@ -36,14 +36,19 @@ const retrieveIDBy = (key, property) => {
   return undefined;
 }
 
+const fetchUserByCookie = (req) => {
+  const { user_id } = req.cookies;
+  return userObj = users[user_id];
+}
+
 // ROUTING
 server.get('/', (req, res) => {
-  res.redirect('/urls');
+  // TEMP: redirect to login - no access to /urls without login.
+  res.redirect('/login');
 });
 
 server.get('/login', (req, res) => {
-  const { user_id } = req.cookies;
-  const user = users[user_id];
+  const user = fetchUserByCookie(req);
   let templateVars = { user };
 
   res.render('login', templateVars);
