@@ -14,7 +14,7 @@ const generateRandomString = () => {
 router.get('/', (req, res) => {
   const { user_id } = req.cookies;
   const user = users[user_id];
-  // FIX: urls passed to urls_index template
+
   const urls = urlDatabase;
 
   let templateVars = { urls, user };
