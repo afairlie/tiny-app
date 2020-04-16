@@ -58,11 +58,12 @@ server.get('/login', (req, res) => {
 
 server.post('/login', (req, res) => {
   const {email, password} = req.body;
-  const id = retrieveIDBy('email', email);
-  const confirmPassword = retrieveIDBy('password', password);
+  // REFACTOR: convoluted.
+  const idByEmail = retrieveIDBy('email', email);
+  const idByPassword = retrieveIDBy('password', password);
 
-  if (id && confirmPassword && id === confirmPassword) {
-    res.cookie('user_id', id);
+  if (idByEmail && idByPassword && idByEmail === idByPassword) {
+    res.cookie('user_id', idByEmail);
     res.redirect('/urls');
   } else {
     res.redirect(403, '/login');
@@ -90,7 +91,6 @@ server.post('/register', (req, res) => {
   if (!email || !password) {
     res.redirect(401, '/register');
   } else if (emailExists) {
-    console.log(email);
     res.redirect(401, '/register');
   } else {
     users[id] = {id, email, password};
@@ -98,7 +98,6 @@ server.post('/register', (req, res) => {
     res.cookie('user_id', id);
     res.redirect('/urls');
   }
-  console.log(users);
 })
 
 server.listen(PORT, () => {

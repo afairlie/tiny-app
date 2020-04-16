@@ -15,7 +15,7 @@ const fetchUserByCookie = (req) => {
   return userObj = users[user_id];
 }
 
-// take in userID, iterate database, return userURLsObj
+// provide user ID, iterate database, return user's URLs
 const fetchURLSByUser = (signedInUser) => {
   let userURLsObj = {}
   for (let shortURL in urlDatabase) {
@@ -28,7 +28,7 @@ const fetchURLSByUser = (signedInUser) => {
 }
 
 // ROUTING
-// view url index - my URLs
+// PERMISSION RESTRICTED: view url index - my URLs
 router.get('/', (req, res) => {
   const user = fetchUserByCookie(req);
 
@@ -66,39 +66,65 @@ router.post("/", (req, res) => {
   res.redirect(`urls/${shortURL}`);
 });
 
-// individual URL page
+// PERMISSION RESTRICTED: individual URL page
 router.get('/:shortURL', (req, res) => {
   const user = fetchUserByCookie(req);
+  const { shortURL } = req.params;
 
   if (user) {
-  const { shortURL } = req.params;
-  const { longURL } = urlDatabase[shortURL];
-  
-  const templateVars = { user, shortURL, longURL};
+    const userURLs = fetchURLSByUser(user.id);
 
-  res.render('urls_show', templateVars);
+    if (userURLs[shortURL]) {
+      const { longURL } = userURLs[shortURL];
+      const templateVars = { user, shortURL, longURL};
+    
+      res.render('urls_show', templateVars);
+    } else {
+      res.redirect(403, '/login');
+    }
   } else {
     res.redirect(403, '/login');
   }
 });
 
-// update individual longURL
+// PERMISSION RESTRICTED update a longURL
 router.post('/:shortURL', (req, res) => {
-  // UPDATE template to use fetchUserByCookie?
-  const { user_id } = req.cookies;
-  let { shortURL } = req.params;
-  let { longURL } = req.body;
-  urlDatabase[shortURL] = { longURL, user_id };
+  const user = fetchUserByCookie(req);
+  const { shortURL } = req.params;
 
-  res.redirect('/urls');
+  if (user) {
+    const userURLs = fetchURLSByUser(user.id);
+    if (userURLs[shortURL]){
+      const { longURL } = req.body;
+      const user_id = user.id;
+      urlDatabase[shortURL] = { longURL, user_id };
+      console.log(urlDatabase);
+      res.redirect('/urls');
+    } else {
+      res.redirect(403, '/login');
+    }
+  } else {
+    res.redirect(403, '/login');
+  }
 })
 
-// delete URL from database
+// PERMISSION RESTRICTED: delete URL from database
 router.post('/:shortURL/delete', (req, res) => {
+  const user = fetchUserByCookie(req);
   const { shortURL } = req.params;
-  delete urlDatabase[shortURL];
 
-  res.redirect('/urls');
+  if (user) {
+    const userURLs = fetchURLSByUser(user.id);
+
+    if (userURLs[shortURL]){
+      delete urlDatabase[shortURL];
+      res.redirect('/urls');
+    } else {
+      res.redirect(403, '/login');
+    }
+  } else {
+    res.redirect(403, '/login');
+  }
 })
 
 module.exports = router;
