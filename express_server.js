@@ -7,6 +7,7 @@ const PORT = 8080; // default port 8080
 const morgan = require('morgan')
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 server.set('view engine', 'ejs');
 server.use(bodyParser.urlencoded({extended: true}));
@@ -49,32 +50,6 @@ server.get('/', (req, res) => {
   res.render('landing', templateVars);
 });
 
-server.get('/login', (req, res) => {
-  const user = fetchUserByCookie(req);
-  let templateVars = { user };
-
-  res.render('login', templateVars);
-})
-
-server.post('/login', (req, res) => {
-  const {email, password} = req.body;
-  // REFACTOR: convoluted.
-  const idByEmail = retrieveIDBy('email', email);
-  const idByPassword = retrieveIDBy('password', password);
-
-  if (idByEmail && idByPassword && idByEmail === idByPassword) {
-    res.cookie('user_id', idByEmail);
-    res.redirect('/urls');
-  } else {
-    res.redirect(403, '/login');
-  }
-})
-
-server.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
-  res.redirect('/urls');
-})
-
 server.get('/register', (req, res) => {
   const user = fetchUserByCookie(req);
   let templateVars = { user };
@@ -87,17 +62,45 @@ server.post('/register', (req, res) => {
   const id = generateRandomString();
   const {email, password} = req.body;
   const emailExists = retrieveIDBy('email', email);
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (!email || !password) {
     res.redirect(401, '/register');
   } else if (emailExists) {
     res.redirect(401, '/register');
   } else {
-    users[id] = {id, email, password};
+    users[id] = {id, email, password: hashedPassword};
 
     res.cookie('user_id', id);
     res.redirect('/urls');
   }
+})
+
+server.get('/login', (req, res) => {
+  const user = fetchUserByCookie(req);
+  let templateVars = { user };
+
+  res.render('login', templateVars);
+})
+
+server.post('/login', (req, res) => {
+  const {email, password} = req.body;
+  // REFACTOR: convoluted.
+  const id = retrieveIDBy('email', email);
+  const hashedPassword = users[id].password;
+  ;
+
+  if (id && bcrypt.compareSync(password, hashedPassword)) {
+    res.cookie('user_id', id);
+    res.redirect('/urls');
+  } else {
+    res.redirect(403, '/login');
+  }
+})
+
+server.post('/logout', (req, res) => {
+  res.clearCookie('user_id');
+  res.redirect('/urls');
 })
 
 server.listen(PORT, () => {
