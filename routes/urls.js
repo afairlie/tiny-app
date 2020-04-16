@@ -4,24 +4,20 @@ const router = express.Router();
 // LOCAL MODULES
 const urlDatabase = require('../data/urlDatabase');
 const users = require('../data/users');
+const { fetchUserByCookie } = require('../helpers');
 
 // HELPER FUNCTIONS
 const generateShortURL = () => {
   return Math.random().toString(36).substring(2, 8);
 }
 
-const fetchUserByCookie = (req) => {
-  const { user_id } = req.session;
-  return userObj = users[user_id];
-}
-
 // provide user ID, iterate database, return user's URLs
-const fetchURLSByUser = (signedInUser) => {
+const fetchURLSByUser = (signedInUser, urlDB) => {
   let userURLsObj = {}
-  for (let shortURL in urlDatabase) {
-    const { user_id } = urlDatabase[shortURL];
+  for (let shortURL in urlDB) {
+    const { user_id } = urlDB[shortURL];
     if (user_id === signedInUser) {
-      userURLsObj[shortURL] = urlDatabase[shortURL];
+      userURLsObj[shortURL] = urlDB[shortURL];
     }
   }
   return userURLsObj;
@@ -31,10 +27,10 @@ const fetchURLSByUser = (signedInUser) => {
 
 // PERMISSION RESTRICTED: view url index - my URLs
 router.get('/', (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
 
   if (user) {
-    const userURLs = fetchURLSByUser(user.id)
+    const userURLs = fetchURLSByUser(user.id, urlDatabase)
     const templateVars = { userURLs, user };
   
     res.render('urls_index', templateVars);
@@ -45,7 +41,7 @@ router.get('/', (req, res) => {
 
 // (RESTRICTED to users): create new URL
 router.get("/new", (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
 
   if (user) {
     const templateVars = { user };
@@ -69,11 +65,11 @@ router.post("/", (req, res) => {
 
 // PERMISSION RESTRICTED: individual URL page
 router.get('/:shortURL', (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
   const { shortURL } = req.params;
 
   if (user) {
-    const userURLs = fetchURLSByUser(user.id);
+    const userURLs = fetchURLSByUser(user.id, urlDatabase);
 
     if (userURLs[shortURL]) {
       const { longURL } = userURLs[shortURL];
@@ -90,11 +86,11 @@ router.get('/:shortURL', (req, res) => {
 
 // PERMISSION RESTRICTED update a longURL
 router.post('/:shortURL', (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
   const { shortURL } = req.params;
 
   if (user) {
-    const userURLs = fetchURLSByUser(user.id);
+    const userURLs = fetchURLSByUser(user.id, urlDatabase);
     if (userURLs[shortURL]){
       const { longURL } = req.body;
       const user_id = user.id;
@@ -111,11 +107,11 @@ router.post('/:shortURL', (req, res) => {
 
 // PERMISSION RESTRICTED: delete URL from database
 router.post('/:shortURL/delete', (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
   const { shortURL } = req.params;
 
   if (user) {
-    const userURLs = fetchURLSByUser(user.id);
+    const userURLs = fetchURLSByUser(user.id, urlDatabase);
 
     if (userURLs[shortURL]){
       delete urlDatabase[shortURL];

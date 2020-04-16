@@ -9,6 +9,11 @@ const getUserByEmail = function(email, database) {
   return undefined;
 };
 
+const fetchUserByCookie = (req, userDatabase) => {
+  const { user_id } = req.session;
+  return userObj = userDatabase[user_id];
+}
+
 // DEPRECATED
 const retrieveIDBy = (key, property) => {
   for (let user in users) {
@@ -19,4 +24,4 @@ const retrieveIDBy = (key, property) => {
   return undefined;
 }
 
-module.exports = { getUserByEmail };
+module.exports = { getUserByEmail, fetchUserByCookie };

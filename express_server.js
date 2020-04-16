@@ -11,9 +11,8 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 
 server.set('view engine', 'ejs');
-server.use(bodyParser.urlencoded({extended: true}));
 server.use(morgan('tiny'));
-
+server.use(bodyParser.urlencoded({extended: true}));
 server.use(cookieSession({
   name: 'session',
   keys: ['8dcf3953-0682-421f-9d88-9e611fe5898a', 'c58234cd-cc0b-4a9f-8d31-32257e7bcd6f']
@@ -23,32 +22,25 @@ server.use(cookieSession({
 const users = require('./data/users');
 const uRedirect = require('./routes/uRedirect');
 const urlsRouter = require('./routes/urls');
-const { getUserByEmail } = require('./helpers');
 
 // ROUTING MODULES
 server.use('/u', uRedirect);
 server.use('/urls', urlsRouter);
 
 // HELPER FUNCTIONS
-const generateRandomLongStr = () => {
-  return uuidv4();
-}
 
-const fetchUserByCookie = (req) => {
-  const { user_id } = req.session;
-  return userObj = users[user_id];
-}
+const { getUserByEmail, fetchUserByCookie } = require('./helpers');
 
 // ROUTING
 server.get('/', (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
   const templateVars = { user };
 
   res.render('landing', templateVars);
 });
 
 server.get('/register', (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
   let templateVars = { user };
 
   res.render('register', templateVars);
@@ -56,7 +48,7 @@ server.get('/register', (req, res) => {
 
 
 server.post('/register', (req, res) => {
-  const id = generateRandomLongStr();
+  const id = uuidv4();
   const {email, password} = req.body;
   const userExists = getUserByEmail(email, users);
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -74,7 +66,7 @@ server.post('/register', (req, res) => {
 })
 
 server.get('/login', (req, res) => {
-  const user = fetchUserByCookie(req);
+  const user = fetchUserByCookie(req, users);
   let templateVars = { user };
 
   res.render('login', templateVars);
@@ -91,6 +83,7 @@ server.post('/login', (req, res) => {
       const hashedPassword = users[id].password;
       if (bcrypt.compareSync(password, hashedPassword)) {
         req.session.user_id = id;
+        console.log('REQ SESSION CHECK:', req.session);
         res.redirect('/urls');
       } else {
         res.redirect(403, '/login');
