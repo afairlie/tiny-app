@@ -14,14 +14,4 @@ const fetchUserByCookie = (req, userDatabase) => {
   return userObj = userDatabase[user_id];
 }
 
-// DEPRECATED
-const retrieveIDBy = (key, property) => {
-  for (let user in users) {
-    if (users[user][key] === property) {
-      return users[user].id;
-    }
-  }
-  return undefined;
-}
-
 module.exports = { getUserByEmail, fetchUserByCookie };
