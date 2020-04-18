@@ -12,17 +12,18 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a>
+        <h5 class="card-title">TinyURL for ⤵️</h5>
+        <p class="card-text"><%= longURL %></p>
+        <p class="card-text"><b>Short URL:</b> <a class='text-success' href="/u/<%= shortURL %>"><%= shortURL %></a>
         </p>
       </div>
     <div class="card-footer text-muted">
       <form method='POST' action='/urls/<%= shortURL %>' class='form-group'>
-        <h5 class='form-title'>Edit</h5>
-        <div>
-          <label for="longURL">new URL:</label>
-          <input type="text" name="longURL" value='<%= longURL %>'>
-        <button type ='submit' class='btn btn-primary'>edit</button> </div>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" type="text" name="longURL" value='<%= longURL %>'>
+          <div class="input-group-append"></div>
+          <button class="btn btn-outline-secondary" type ='submit'>Edit</button> 
+        </div>
       </form>
     </div>
   </div>

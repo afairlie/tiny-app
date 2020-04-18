@@ -35,7 +35,7 @@ router.get('/', (req, res) => {
   
     res.render('urls_index', templateVars);
   } else {
-    res.redirect('../');
+    res.redirect(403, 'http://localhost:8080/');
   }
 });
 
@@ -54,13 +54,21 @@ router.get("/new", (req, res) => {
 
 // post new URL
 router.post("/", (req, res) => {
-  const { longURL } = req.body;
-  const { user_id } = req.session;
+  const user = fetchUserByCookie(req, users);
+  
+  if (user) {
+    const { longURL } = req.body;
+    const user_id = user.id;
+  
+    const shortURL = generateShortURL();
+    urlDatabase[shortURL] = { longURL, user_id }
+  
+    res.redirect(`urls/${shortURL}`);
+  } else {
+    res.redirect(403, 'http://localhost:8080/login');
+  }
 
-  const shortURL = generateShortURL();
-  urlDatabase[shortURL] = { longURL, user_id }
-
-  res.redirect(`urls/${shortURL}`);
+  // EXISTING
 });
 
 // PERMISSION RESTRICTED: individual URL page
@@ -69,18 +77,22 @@ router.get('/:shortURL', (req, res) => {
   const { shortURL } = req.params;
 
   if (user) {
-    const userURLs = fetchURLSByUser(user.id, urlDatabase);
+    if (urlDatabase[shortURL]){
+      const userURLs = fetchURLSByUser(user.id, urlDatabase);
 
-    if (userURLs[shortURL]) {
-      const { longURL } = userURLs[shortURL];
-      const templateVars = { user, shortURL, longURL};
-    
-      res.render('urls_show', templateVars);
+      if (userURLs[shortURL]) {
+        const { longURL } = userURLs[shortURL];
+        const templateVars = { user, shortURL, longURL};
+      
+        res.render('urls_show', templateVars);
+      } else {
+        res.redirect(403, 'http://localhost:8080/login');
+      }
     } else {
-      res.redirect(403, '/login');
+      res.redirect(400, 'http://localhost:8080/');
     }
   } else {
-    res.redirect(403, '/login');
+    res.redirect(403, 'http://localhost:8080/login');
   }
 });
 
@@ -95,13 +107,12 @@ router.post('/:shortURL', (req, res) => {
       const { longURL } = req.body;
       const user_id = user.id;
       urlDatabase[shortURL] = { longURL, user_id };
-      console.log(urlDatabase);
       res.redirect('/urls');
     } else {
-      res.redirect(403, '/login');
+      res.redirect(403, 'http://localhost:8080/login');
     }
   } else {
-    res.redirect(403, '/login');
+    res.redirect(403, 'http://localhost:8080/login');
   }
 })
 
