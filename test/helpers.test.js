@@ -4,7 +4,7 @@ const { getUserByEmail } = require('../helpers');
 
 describe('getUserByEmail', function() {
   it ('should return an object', () => {
-    const user = getUserByEmail('vassart.max@gmail.com', users);
+    const user = getUserByEmail('stevethecat@gmail.com', users);
     assert.isObject(user);
   });
   it('should return a valid user in database', () => {
@@ -12,7 +12,7 @@ describe('getUserByEmail', function() {
     const expectedOutput = {
       id: 'na0weg', 
       email: 'stevethecat@gmail.com', 
-      password: 'booboo'
+      password: 'hashed password'
     };
 
     assert.deepEqual(user, expectedOutput);
